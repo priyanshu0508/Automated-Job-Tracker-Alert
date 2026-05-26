@@ -37,9 +37,12 @@ jobs:
         run: python main.py
 
       - name: Save Memory File to Repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "Job Tracker Bot"
           git config --global user.email "actions@github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/priyanshu0508/Automated-Job-Tracker-Alert.git
           git add seen_jobs.csv seen_jobs_date.txt || true
           git diff --staged --quiet || git commit -m "chore: update job memory [skip ci]"
           git push
