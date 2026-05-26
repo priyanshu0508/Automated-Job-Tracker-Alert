@@ -2,13 +2,18 @@ name: Daily Job Tracker Automated Alert
 
 on:
   schedule:
-    # This CRON expression means it will run at 09:00 UTC every single day.
+    # Runs at 09:00 UTC every day = 2:30 PM India Time (IST)
     - cron: '0 9 * * *'
-  workflow_dispatch: # This allows you to click a button to run it manually
+  workflow_dispatch: # Allows you to manually trigger it from GitHub
+
+# Permission to write files back to the repository (needed for memory file)
+permissions:
+  contents: write
 
 jobs:
   run-scraper:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -30,3 +35,11 @@ jobs:
           SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
           RECEIVER_EMAIL: ${{ secrets.RECEIVER_EMAIL }}
         run: python main.py
+
+      - name: Save Memory File to Repository
+        run: |
+          git config --global user.name "Job Tracker Bot"
+          git config --global user.email "actions@github.com"
+          git add seen_jobs.csv seen_jobs_date.txt || true
+          git diff --staged --quiet || git commit -m "chore: update job memory [skip ci]"
+          git push
